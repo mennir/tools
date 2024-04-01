@@ -40,10 +40,22 @@
 					  	<button class="get_domains btn btn-sm btn-primary">Get Domain List</button>
 					  </div>
 					  <textarea class="arr_domain form-control" rows="10" id="arr_domain" placeholder="one domain per line.."></textarea>
-					</div> 
-					<div class="form-group">
-					  <label for="arr_sitemap">Sitemap Path :</label>
-					  <textarea class="arr_sitemap form-control" rows="10" id="arr_sitemap" placeholder="one sitemap path per line.."></textarea>
+					</div>
+					<div class="container mt-4">
+						<div class="form-group">
+							<label for="filenamePattern">Format:</label>
+							<input type="text" id="filenamePattern" class="form-control" value="sitemap-{index}.txt">
+						</div>
+						<div class="form-group">
+							<label for="numFiles">Jumlah:</label>
+							<input type="number" id="numFiles" class="form-control" min="1" max="999">
+						</div>
+						<button class="btn btn-primary" onclick="generateSitemaps()">Generate</button>
+						<button class="btn btn-secondary" onclick="shuffleSitemaps()">Shuffle</button>
+						<div class="form-group">
+							<label for="arr_sitemap"></label>
+							<textarea class="arr_sitemap form-control" rows="10" id="arr_sitemap" placeholder="one sitemap path per line.."></textarea>
+						</div>
 					</div> 
 					<button class="submit_sitemap btn btn-primary">Submit</button>					
 				</div>
@@ -54,6 +66,54 @@
 <div class="d-block" align="center">
 	<!-- <p>Created By <a href="https://www.facebook.com/vyant789" target="_blank">vyant</a></p> -->
 </div>
+<script>
+function generateSitemaps() {
+    var filenamePattern = document.getElementById("filenamePattern").value.trim(); // Mendapatkan pola nama file dari input
+    var numFiles = parseInt(document.getElementById("numFiles").value); // Mendapatkan jumlah file dari input
+    
+    // Memastikan input tidak kosong atau tidak valid
+    if (filenamePattern === "") {
+        alert("Masukkan pola nama file sitemap.");
+        return;
+    }
+    if (isNaN(numFiles) || numFiles < 1 || numFiles > 999) {
+        alert("Masukkan jumlah file antara 1 hingga 999.");
+        return;
+    }
+    
+    var sitemapList = ''; // Variabel untuk menyimpan daftar nama file sitemap
+    
+    // Loop untuk membuat file sitemap sesuai dengan jumlah yang dimasukkan
+    for (var i = 0; i < numFiles; i++) {
+        var filename = filenamePattern.replace("{index}", pad(i, numFiles.toString().length)); // Mengganti placeholder {index} dengan nomor indeks yang di-pad
+        sitemapList += filename + '\n'; // Menambahkan nama file ke daftar
+    }
+    
+    // Menampilkan daftar nama file sitemap di dalam textarea
+    document.getElementById("arr_sitemap").value = sitemapList;
+}
+
+function shuffleSitemaps() {
+    var arr = document.getElementById("arr_sitemap").value.split('\n'); // Mendapatkan daftar nama file dari textarea dan memisahkannya menjadi array
+    arr = arr.filter(item => item !== ''); // Menghapus elemen kosong dari array
+    
+    // Mengacak urutan array
+    for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    
+    // Menampilkan daftar nama file sitemap yang teracak di dalam textarea
+    document.getElementById("arr_sitemap").value = arr.join('\n');
+}
+
+// Fungsi untuk membuat angka dengan padding nol di depannya
+function pad(num, size) {
+    var s = num + "";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
 <script type="text/javascript">
