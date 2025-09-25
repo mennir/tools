@@ -1,459 +1,342 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Sitemap Insert</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-		<style>
-			body, html {
-				height: 100%;
-				margin: 0;
-			}
-			.container {
-				height: 100%;
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-			}
-			.main-content {
-				flex-grow: 1;
-				overflow-y: auto;
-			}
-			textarea {
-				resize: none;
-			}
-			.card-body {
-				padding: 10px;
-			}
-			.form-group {
-				margin-bottom: 0.75rem;
-			}
-			.form-row .form-group {
-				margin-bottom: 0.5rem;
-			}
-			footer {
-				text-align: center;
-				padding: 0.5rem 0;
-				background-color: #f8f9fa;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-			<div class="text-center my-2">
-				<h1 class="h4">Google Sitemap Submiter</h1>
+<html>
+<head>
+	<title>GSC Sitemap</title>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#ffffff">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<link href="favicon.ico" rel="icon">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+	<script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="col-12 my-2" align="center"><a href=""><h1 class="h3">GSC Sitemap</h1></a></div>
+		<div class="col-md-8 offset-md-2 my-2">
+			<div class="card mb-4">
+				<div class="card-header">
+					<h1 class="h4 d-flex text-nowrap">Access Token: <span id="auth_status" class="text-success ms-2">Unauthorized</span><span id="expired_in" class="ms-auto fs-6 pt-2"></span></h1>
+				</div>
+				<div id="token_info" class="card-body">
+					<button id="req_token" class="btn btn-sm btn-success">Request Token</button>
+					<input id="access_token" class="form-control form-control-sm d-none" placeholder="Token.." value="">
+				</div>
 			</div>
-
-			<div class="main-content">
-				<div class="col-md-8 offset-md-2">
-					<div class="card mb-3">
-						<div class="card-header">
-							<h2 class="h5">Access Token</h2>
-						</div>
-						<div class="card-body text-center">
-							<button class="req_token btn btn-primary">Request Token</button>
-						</div>
+			<div class="card">
+				<div class="card-header">
+					<h1 class="h4">Submit Sitemap</h1>
+				</div>
+				<div class="card-body">
+					<div class="form-group mb-3">
+						<button class="get_domains btn btn-sm btn-primary mb-2">Get Property List</button>
+						<button class="get_sitemap_list btn btn-sm btn-primary mb-2">Get Sitemap List</button>
+						<select id="arr_property" class="form-select form-select-sm mb-2" size="3" aria-label="Multiple select example">
+							<option>Unavailable</option>
+						</select>
 					</div>
-
-					<div class="card mb-3">
-						<div class="card-header">
-							<h2 class="h5">Submit Sitemap</h2>
+					<label class="mb-1">Sitemap index</label>
+					<form id="fetch_sitemap_index">
+						<div class="sitemap_index row mb-3">
+							<div class="col-sm-6 pe-sm-0"><input class="property form-control form-control-sm" placeholder="Domain/property"></div>
+							<div class="col-sm-4 pe-sm-0"><input class="path form-control form-control-sm" placeholder="Path"></div>
+							<div class="col-sm-2"><button class="fetch btn btn-sm btn-primary w-100">FETCH</button></div>
 						</div>
-						<div class="card-body">
-							<div class="row">
-								<!-- Kolom Kiri -->
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="access_token">Access Token:</label>
-										<input type="text" class="form-control" id="access_token" placeholder="Token..">
-									</div>
-									<div class="form-group">
-										<div  class="text-center" class="my-2">
-											<button class="get_domains btn btn-sm btn-primary">Get Domain List</button>
-											<button class="delete_domains btn btn-sm btn-danger">DELETE Property</button>
-										</div>
-										<!-- Menambahkan div untuk menampilkan checkbox domain -->
-										<div style="padding-top: 10px;">
-											<input type="checkbox" id="checkAll"> select all<br>
-											<div id="domainList"></div>
-										</div>
-									</div>
-								</div>
-
-								<!-- Kolom Kanan -->
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="filenamePattern">Format:</label>
-										<input type="text" id="filenamePattern" class="form-control" value="sitemap-{index}.txt">
-									</div>
-
-									<div class="form-group">
-										<label for="numFiles">Jumlah:</label>
-										<input type="number" id="numFiles" class="form-control" min="1" max="999">
-									</div>
-
-									<div class="form-group">
-										<label for="fileSelector">Pilih File:</label>
-										<select id="fileSelector" class="form-control" onchange="addList()">
-											<option value="" disabled selected>Pilih file untuk dimuat</option>
-											<option value="aligc.php">ALIGC</option>
-											<option value="1000.php">1000</option>
-											<option value="125.php">root</option>
-											<option value="app.php">app</option>
-											<option value="assets.php">assets</option>
-											<option value="includes.php">includes</option>
-											<option value="src.php">src</option>
-											<option value="css.php">css</option>
-											<option value="item.php">item</option>
-											<option value="data.php">data</option>
-										</select>
-									</div>
-
-									<div class="form-row mt-3">
-										<div class="form-group col-md-6">
-											<input type="text" id="findText" class="form-control" value="html">
-										</div>
-										<div class="form-group col-md-6">
-											<input type="text" id="replaceText" class="form-control" placeholder="">
-										</div>
-									</div>
-
-									<div class="text-center" style="padding-top: 0px;">
-										<button class="btn btn-sm btn-primary" onclick="generateSitemaps()">Generate</button>
-										<button class="btn btn-sm btn-warning" onclick="replaceText()">Replace</button>
-										<button class="btn btn-sm btn-secondary" onclick="shuffleSitemaps()">Shuffle</button>
-										<button class="submit_sitemap btn btn-sm btn-primary">Submit</button>
-
-									</div>
-									
-								</div>
-							</div>
-
-							<div class="form-group mt-3">
-								<label for="arr_sitemap">Sitemap:</label>
-								<textarea class="arr_sitemap form-control" rows="5" id="arr_sitemap" placeholder=""></textarea>
-							</div>
-						</div>
+					</form>
+					<div class="form-group mb-3">
+					  <label for="arr_sitemap">Sitemap URL/Path</label>
+					  <textarea class="arr_sitemap form-control form-control-sm" rows="4" id="arr_sitemap" placeholder="URL/path"></textarea>
 					</div>
+					<div>
+						<button class="submit_sitemap btn btn-sm btn-primary">Submit</button>
+						<button class="shuffle btn btn-sm btn-primary">Shuffle</button>
+						<button class="fetch_all btn btn-sm btn-primary">Fetch All</button>
+						<button class="clear btn btn-sm btn-secondary">Clear</button>
+						<button class="delete_sitemap btn btn-sm btn-danger float-end">Delete</button>
+					</div>
+					<pre id="result_log" class="my-3"></pre>
 				</div>
 			</div>
 		</div>
+		<div class="mb-4 text-center">
+			By EmbuhTeam
+		</div>
+	</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	var task_delay      = 500;
+	var date 			= $.now();
+	var pre_token 		= getParams()["access_token"];
+	var oauth 			= sessionStorage.getItem('oauth');
 
-		<!-- Script -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
-		<script>
-			function addList() {
-				// Mendapatkan nilai dari dropdown
-				const filename = document.getElementById('fileSelector').value;
+	if(pre_token) {
+		var expired 	= getParams()["expires_in"],
+			expired 	= date + (expired * 1000);
+		sessionStorage.setItem('oauth', true);
+		sessionStorage.setItem('token_expired', expired);
+		sessionStorage.setItem('access_token', pre_token);
+	}
+	else if(!oauth) {
+		return google_auth();
+	}
 
-				// Jika tidak ada file yang dipilih, hentikan fungsi
-				if (!filename) return;
+	var access_token 	= sessionStorage.getItem('access_token');
+	var token_expired	= sessionStorage.getItem('token_expired');
+	var tasks = [];
+	var tasks_length = 0;
+	var task_progress = 0;
 
-				// Path ke file yang akan diambil, sesuaikan URL jika file ada di tempat lain
-				const fileUrl = 'https://nde2.buytostore.com/_list_sitemap/' + filename;
+	if(access_token) {
+		var s_expired	= (token_expired - date) / 1000;
+		var m_expired	= parseInt(s_expired / 60);
 
-				document.getElementById('arr_sitemap').value = '';
-				// Mengambil data dari file sesuai dengan filename yang dipilih
-				fetch(fileUrl)
-					.then(response => response.text())
-					.then(data => {
-					// Menampilkan data dari file di dalam textarea
-					document.getElementById('arr_sitemap').value += data;
-				})
-					.catch(error => {
-					console.error('Error fetching the file:', error);
-				});
+		if(m_expired < 5) {
+			return google_auth();
+		}
+
+		$('#auth_status').text(`Authorized`);
+		$('#access_token').val(access_token);
+		$('#req_token, #access_token').toggleClass('d-none d-block');
+		(function expiredCountDown() {
+			if(token_expired < $.now()) {
+				$('#req_token, #access_token').toggleClass('d-none d-block');
+				$('#expired_in').text(`Token expired`);
+				return null;
 			}
-			function replaceText() {
-				// Ambil nilai dari input findText dan replaceText
-				const findText = document.getElementById('findText').value;
-				const replaceText = document.getElementById('replaceText').value;
+			var expired = (token_expired - $.now());
+			var mmss = new Date(expired).toISOString().slice(14, 19);
+			$('#expired_in').text(`Expired after ${mmss}`);
+			setTimeout(expiredCountDown, 1000);
+		})();
+	}
 
-				// Ambil konten textarea
-				let textareaContent = document.getElementById('arr_sitemap').value;
-
-				// Lakukan replace kata
-				if (findText) {
-					const regex = new RegExp(findText, 'g'); // Buat regex untuk menggantikan semua kemunculan kata
-					textareaContent = textareaContent.replace(regex, replaceText);
-				}
-
-				// Tampilkan hasil di textarea
-				document.getElementById('arr_sitemap').value = textareaContent;
+	var append_log = (text, overwrite) => $('#result_log')[overwrite ? 'text' : 'append'](text);
+	var shuffle = (a) => {
+		for (let i = a.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[a[i], a[j]] = [a[j], a[i]];
+		}
+		return a;
+	};
+	var get_domains = () => {
+		// var a_token = $('#access_token').val();
+		$.ajax({
+	        url: 'https://www.googleapis.com/webmasters/v3/sites',
+			type: 'GET',
+			beforeSend: function (xhr) {
+			    xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
+			},
+			success: function(data) {
+				var arr 	= data.siteEntry;
+				var arr_res = [];
+				$('#arr_property').empty();
+				if(!arr.length)
+					return $('#arr_property').empty().append(`<option>No property detected.</option>`);
+				$.each(arr, function (i, val) {
+					var site = val.siteUrl;
+			        if(val.permissionLevel == 'siteOwner' && !site.includes('sc-domain:'))
+						$('#arr_property').append(`<option>${site}</option>`);
+			    });
+				// console.log($("#arr_property").val());
 			}
-			function shuffleSitemaps() {
-				var arr = document.getElementById("arr_sitemap").value.split('\n'); // Mendapatkan daftar nama file dari textarea dan memisahkannya menjadi array
-				arr = arr.filter(item => item !== ''); // Menghapus elemen kosong dari array
-
-				// Mengacak urutan array
-				for (var i = arr.length - 1; i > 0; i--) {
-					var j = Math.floor(Math.random() * (i + 1));
-					[arr[i], arr[j]] = [arr[j], arr[i]];
+	    });
+	};
+	var put_sitemap = (property, path) => {
+		var sites    = encodeURIComponent(property);
+		var url      = property + path;
+		var sitemaps = encodeURIComponent(url);
+		var target   = `https://content.googleapis.com/webmasters/v3/sites/${sites}/sitemaps/${sitemaps}`;
+		task_progress++;
+		append_log(`Submit sitemap ${task_progress} of ${tasks_length}\nURL: ${url}\nFetching ...`, true);
+		$.post('tools.php', {act: 'sitemap', url}).done((response) => {
+			append_log(`Submit sitemap ${task_progress} of ${tasks_length}\nURL: ${url}\nFetching done\nSubmitting sitemap ...`, true);
+			$.ajax({
+				url: target,
+				type: 'PUT',
+				beforeSend:  (xhr) => {
+					xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
+				},
+			}).done((data, textStatus, jqXHR) => {
+				switch(jqXHR.status) {
+					case 204:
+						append_log(`Submit sitemap ${task_progress} of ${tasks_length}\nURL: ${url}\nFetching done\nSubmitting sitemap done`, true);
+						break;
+					default:
+						append_log(`Submit sitemap ${task_progress} of ${tasks_length}\nURL: ${url}\nFetching done\nSubmitting sitemap failed [${jqXHR.status}]`, true);
+						// append_log(` ${jqXHR.status}`);
 				}
-
-				// Menampilkan daftar nama file sitemap yang teracak di dalam textarea
-				document.getElementById("arr_sitemap").value = arr.join('\n');
+			}).always(() => nextTask(put_sitemap));
+		});
+	};
+	var delete_sitemap = (property, url) => {
+		var sites    = encodeURIComponent(property);
+		var sitemaps = encodeURIComponent(url);
+		var target   = `https://content.googleapis.com/webmasters/v3/sites/${sites}/sitemaps/${sitemaps}`;
+		task_progress++;
+		append_log(`Delete sitemap ${task_progress} of ${tasks_length}\nURL: ${url}`, true);
+		$.ajax({
+			url: target,
+			type: 'DELETE',
+			beforeSend:  (xhr) => {
+				xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
+			},
+		}).done((data, textStatus, jqXHR) => {
+			switch(jqXHR.status) {
+				case 204:
+					append_log(`Delete sitemap ${task_progress} of ${tasks_length}\nURL: ${url}\nDeleting sitemap done`, true);
+					break;
+				default:
+					append_log(`Delete sitemap ${task_progress} of ${tasks_length}\nURL: ${url}\nDeleting sitemap failed [${jqXHR.status}]`, true);
 			}
+		}).always(() => nextTask(delete_sitemap));
+	};
+	var get_sitemap_list = () => {
+		var property = $('#arr_property').val();
+		var sites    = encodeURIComponent(property);
+		if(!property)
+			return append_log("Get sitemap list: select property first", true);
+		var target   = `https://www.googleapis.com/webmasters/v3/sites/${sites}/sitemaps`;
+		append_log("Get sitemap list: fetching google API ...", true);
+		$.ajax({
+			url: target,
+			type: 'GET',
+			beforeSend:  (xhr) => {
+				xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
+			},
+		}).done((data) => {
+			// console.log(data.sitemap)
+			if(!data.sitemap)
+				return append_log("Get sitemap list: no sitemap detected", true);
+			var sitemaps = [];
+			data.sitemap.map(item => sitemaps.push(item.path));
+			$('#arr_sitemap').val(sitemaps.join('\n')+'\n');
+				return append_log(`Get sitemap list: ${data.sitemap.length} urls.`, true);
+		});
+	};
+	var fetch_sitemap_index = (e) => {
+		e.preventDefault();
+		var property = $('.sitemap_index .property').val();
+		var path = $('.sitemap_index .path').val()
+		var url = property+path;
+		if(!property)
+			return append_log(`Fetch sitemap index: please select property`, true);
+		if(!path)
+			return append_log(`Fetch sitemap index: invalid path`, true);
+		localStorage.setItem("sitemap_index_path", path);
+		append_log(`Fetching sitemap index:\n${url}`, true);
+		$.post('tools.php', {act: 'sitemap_index', url}).done((response) => {
+			if(!response.data.length)
+				return append_log(`\nDone: no url detected.`);
+			$('#arr_sitemap').val(response.data.join('\n')+'\n');
+			append_log(`\nDone: ${response.data.length} urls detected.`);
+		});
+	};
+	var nextTask = (method) => {
+		var task = tasks.shift();
+		if(task) {
+			setTimeout(() => method(...task), task_delay);
+		} else {
+			$('button.submit_sitemap').removeAttr('disabled');
+			append_log(`${method.name}: ${tasks_length} URLs finished`, true);
+		}
+	};
 
-
-
-
-			function pad(number, length) {
-				var str = '' + number;
-				while (str.length < length) {
-					str = '0' + str;
-				}
-				return str;
-			}
-			function generateSitemaps() {
-				var filenamePattern = document.getElementById("filenamePattern").value.trim(); // Mendapatkan pola nama file dari input
-				var numFiles = parseInt(document.getElementById("numFiles").value); // Mendapatkan jumlah file dari input
-
-				// Memastikan input tidak kosong atau tidak valid
-				if (filenamePattern === "") {
-					alert("Masukkan pola nama file sitemap.");
-					return;
-				}
-				if (isNaN(numFiles) || numFiles < 1 || numFiles > 999) {
-					alert("Masukkan jumlah file antara 1 hingga 999.");
-					return;
-				}
-
-				var sitemapList = ''; // Variabel untuk menyimpan daftar nama file sitemap
-
-				// Loop untuk membuat file sitemap sesuai dengan jumlah yang dimasukkan
-				for (var i = 0; i < numFiles; i++) {
-					var filename = filenamePattern.replace("{index}", pad(i, numFiles.toString().length)); // Mengganti placeholder {index} dengan nomor indeks yang di-pad
-					sitemapList += filename + '\n'; // Menambahkan nama file ke daftar
-				}
-
-				// Menampilkan daftar nama file sitemap di dalam textarea
-				document.getElementById("arr_sitemap").value = sitemapList;
-			}
-
-			$(document).ready(function () {
-				// Mendapatkan access token yang ada di session storage
-				var date = $.now();
-				var pre_token = gVar()["access_token"];
-				var oauth = sessionStorage.getItem('oauth');
-
-				if (pre_token) {
-					var expired = gVar()["expires_in"],
-						expired = date + (expired * 1000);
-
-					sessionStorage.setItem('oauth', true);
-					sessionStorage.setItem('token_expired', expired);
-					sessionStorage.setItem('access_token', pre_token);
-				} else if (!oauth) {
-					google_auth();
-				}
-
-				var access_token = sessionStorage.getItem('access_token');
-				var token_expired = sessionStorage.getItem('token_expired');
-
-				if (access_token) {
-					const s_expired = (token_expired - date) / 1000;
-					const m_expired = parseInt(s_expired / 60);
-
-					if (m_expired < 5) {
-						google_auth();
-					}
-
-					$('#token_info').html(`<p>Access : <b class='text-success'>Authorized</b><br>Expired in : <b class='text-danger'>${m_expired} minutes</b></p>`);
-					$('#access_token').val(access_token);
-				}
-
-				// Request token
-				$(document).on('click', '.req_token', function () {
-					google_auth();
-				});
-
-				// Get domain list and display as checkboxes
-				$(document).on('click', '.get_domains', function () {
-					get_domains();
-				});
-
-				// Submit sitemap based on selected domains
-				$(document).on('click', '.submit_sitemap', function () {
-					var arr_sitemap = $(".arr_sitemap").val().replace(/\r\n/g, "\n").split("\n");
-
-					if (access_token && arr_sitemap) {
-						$("input[name='domainCheckbox']:checked").each(function () {
-							var domain = $(this).val();
-							put_sitemap(domain, arr_sitemap);
-						});
-					}
-				});
-
-
-
-				var get_domains = function () {
-					var a_token = $('#access_token').val();
-
-					$.ajax({
-						url: 'https://www.googleapis.com/webmasters/v3/sites',
-						type: 'GET',
-						beforeSend: function (xhr) {
-							xhr.setRequestHeader('Authorization', `Bearer ${a_token}`);
-						},
-						success: function (data) {
-							var arr = data.siteEntry;
-							var arr_res = [];
-
-							$.each(arr, function (key, val) {
-								var site = val.siteUrl;
-								if (val.permissionLevel == 'siteOwner' && !site.includes('sc-domain:')) {
-									arr_res.push(site);
-								}
-							});
-
-							// Tampilkan hasil sebagai checkbox
-							var domainListHtml = '';
-							arr_res.forEach(function (domain) {
-								domainListHtml += `<div class="form-check">
-<input class="form-check-input domainCheckbox" type="checkbox" name="domainCheckbox" value="${domain}">
-<label class="form-check-label">${domain}</label>
-			</div>`;
-							});
-							$("#domainList").html(domainListHtml);
-						}
-					});
-				};
-
-				function deleteDomains(domainsToDelete) {
-					var access_token = $('#access_token').val(); // Ambil token akses
-					var deletePromises = []; // Array untuk menyimpan promise penghapusan
-
-					// Loop untuk menghapus setiap domain
-					domainsToDelete.forEach(function(domain) {
-						var url = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(domain)}`;
-
-						// Menyimpan promise untuk penghapusan domain
-						deletePromises.push(
-							fetch(url, {
-								method: 'DELETE',
-								headers: {
-									'Authorization': `Bearer ${access_token}`,
-									'Content-Type': 'application/json'
-								}
-							})
-							.then(response => {
-								if (!response.ok) {
-									console.error('Error deleting domain, status:', response.status);
-									return response.text().then(text => {
-										console.error('Response body:', text);
-										throw new Error(`Error ${response.status}: ${text}`);
-									});
-								}
-								return response.json(); // Anda bisa mengembalikan data jika dibutuhkan
-							})
-							.then(data => {
-								// console.log('Domain deleted successfully:', domain);
-								// alert('Domain deleted successfully: ' + domain);
-							})
-							.catch(error => {
-								// console.error('Error deleting domain:', error);
-								// alert('Error deleting domain: ' + error.message);
-							})
-						);
-					});
-
-					// Setelah semua penghapusan selesai, panggil get_domains()
-					Promise.all(deletePromises)
-						.then(() => {
-						get_domains(); // Memperbarui daftar domain setelah penghapusan
-					})
-						.catch(err => {
-						console.error('Error in promise all:', err);
-						alert('Some errors occurred while deleting domains.'); // Pesan kesalahan umum
-					});
-				}
-
-				$(document).ready(function() {
-					// Event untuk mengambil domain
-					$('.get_domains').click(function() {
-						get_domains();
-					});
-
-					// Fungsi untuk "Pilih Semua"
-					$('#checkAll').click(function() {
-						// Set semua checkbox domain berdasarkan status checkAll
-						$('.domainCheckbox').prop('checked', $(this).is(':checked'));
-					});
-
-					// Jika salah satu checkbox domain di-click, periksa status "Pilih Semua"
-					$('#domainList').on('click', '.domainCheckbox', function() {
-						// Periksa jika semua checkbox domain dicentang
-						$('#checkAll').prop('checked', $('.domainCheckbox:checked').length === $('.domainCheckbox').length);
-					});
-
-					// Fungsi untuk menghapus domain yang dipilih
-					$(document).on('click', '.delete_domains', function() {
-						var domainsToDelete = [];
-						$('.domainCheckbox:checked').each(function() {
-							domainsToDelete.push($(this).val());
-						});
-
-						if (domainsToDelete.length === 0) {
-							alert('Pilih setidaknya satu domain untuk dihapus.');
-							return;
-						}
-
-						// Panggil fungsi delete sesuai kebutuhan Anda
-						deleteDomains(domainsToDelete);
-					});
-				});
-
-				var put_sitemap = function (site_domain, arr_sitemap) {
-					var a_token = $('#access_token').val();
-					var esd = encodeURIComponent(site_domain);
-
-					$.each(arr_sitemap, function (key, path) {
-						var map = encodeURIComponent(site_domain + path),
-							target = `https://content.googleapis.com/webmasters/v3/sites/${esd}/sitemaps/${map}`;
-
-						$.ajax({
-							url: target,
-							type: 'PUT',
-							beforeSend: function (xhr) {
-								xhr.setRequestHeader('Authorization', `Bearer ${a_token}`);
-							},
-							statusCode: {
-								204: function () {
-									console.log(`Success to insert`);
-								}
-							}
-						});
-					});
-				};
-
-
-			});
-
-
-			function gVar() {
-				var vars = {};
-				var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,    
-														 function(m,key,value) {
-					vars[key] = value;
-				});
-				return vars;
+	$('#req_token').on('click', google_auth);
+	$('.get_domains').on('click', get_domains);
+	$('.get_sitemap_list').on('click', get_sitemap_list);
+	$('.submit_sitemap').on('click', function() {
+		tasks = [];
+		tasks_length = 0;
+		task_progress = 0;
+		var arr_sitemap = $("#arr_sitemap").val().replace(/\r\n/g,"\n").split("\n").filter(Boolean);
+		var property = $('#arr_property').val();
+		if(!property)
+			return append_log('Select property first', true);
+		append_log('Submitting sitemap ...', true);
+		$('button.submit_sitemap').attr('disabled', 'disabled');
+		for(var path of arr_sitemap) {
+			// path = path.replace(property, '');
+			path = path.substring(0, 4) == 'http' ? path.replace(property, '') : path;
+			if(path.substring(0, 4) == 'http')
+				return append_log('Submitting sitemap: Property and path do not match.', true);
+			tasks.push([property, path]);
+		}
+		tasks_length = tasks.length;
+		if(tasks_length) {
+			nextTask(put_sitemap);
+		} else {
+			append_log('Nothing happen.', true);
+			$('button.submit_sitemap').removeAttr('disabled');
+		}
+	});
+	$('.delete_sitemap').on('click', function() {
+		tasks = [];
+		tasks_length = 0;
+		task_progress = 0;
+		var arr_sitemap = $("#arr_sitemap").val().replace(/\r\n/g,"\n").split("\n").filter(Boolean);
+		var property = $('#arr_property').val();
+		if(!property)
+			return append_log('Select property first', true);
+		append_log('Deleting sitemap ...', true);
+		$('button.submit_sitemap').attr('disabled', 'disabled');
+		for(const path of arr_sitemap) {
+			tasks.push([property, path]);
+		}
+		tasks_length = tasks.length;
+		if(tasks_length) {
+			nextTask(delete_sitemap);
+		} else {
+			append_log('Nothing happen.', true);
+			$('button.submit_sitemap').removeAttr('disabled');
+		}
+	});
+	$('.clear').on('click', () => $('#arr_sitemap').val(''));
+	$('.shuffle').on('click', function() {
+		let source = $('#arr_sitemap').val().trim().split('\n').filter(Boolean);
+		if(!source.length) return;
+		let unique = [...new Set(source)];
+		let randomized = shuffle(unique);
+		$('#arr_sitemap').val(randomized.join('\n')+'\n');
+		append_log(randomized.length+' lines was shuffled (from '+source.length+' lines).', true);
+	});
+	$('#arr_property').on('change', function() {
+		$('.sitemap_index .property').val($(this).val());
+	});
+	$('#fetch_sitemap_index').on('submit', fetch_sitemap_index);
+	$('.fetch_all').on('click', function() {
+		var source = $('#arr_sitemap').val().split('\n').map(item => item.trim()).filter(Boolean);
+		var progress = 0;
+		var src_length = source.length;
+		if(!source.length)
+			return append_log(`Nothing to do`, true);
+		(function fetch_one() {
+			var url = source.shift();
+			progress++;
+			if(url) {
+				append_log(`Fetching [${progress}/${src_length}] ${url} ...`, true);
+				$.post('tools.php', {act: 'sitemap', url}).done(fetch_one);
+			} else {
+				append_log(`All done.`, true);
 			}
 
+		})();
+	});
 
-			// 			function google_auth()
-			// 			{
-			// 				var endpoint 	= 'https://accounts.google.com/o/oauth2/v2/auth',
-			// 					client_id 		= '504358303018-a01sn11v15n28ge466nl75eipj30ma13.apps.googleusercontent.com',
-			// 					scope 			= encodeURIComponent('https://www.googleapis.com/auth/webmasters'),
-			// 					redirect 		= encodeURIComponent('https://buytostore.com/tools/sitemap.html');
-
-			// 				window.location = `https://accounts.google.com/o/oauth2/v2/auth?include_granted_scopes=true&response_type=token&state=state_parameter_passthrough_value&redirect_uri=${redirect}&client_id=${client_id}&scope=${scope}`;
-			// 			}
-			function google_auth() {
+	$('.sitemap_index .path').val(localStorage.getItem("sitemap_index_path"));
+	get_domains();
+});
+function getParams() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		vars[key] = value;
+	});
+	return vars;
+}
+function google_auth() {
 				var endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
 
 				// Konfigurasi untuk beberapa domain
@@ -494,9 +377,5 @@
 				// Redirect ke halaman autentikasi Google OAuth dengan client_id dan redirect_uri yang sesuai
 				window.location = `https://accounts.google.com/o/oauth2/v2/auth?include_granted_scopes=true&response_type=token&state=state_parameter_passthrough_value&redirect_uri=${redirect}&client_id=${client_id}&scope=${scope}`;
 			}
-
-
-		</script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	</body>
+</script>
 </html>
